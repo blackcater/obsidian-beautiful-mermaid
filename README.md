@@ -6,4 +6,7 @@
 
 Ultra-fast, fully themeable, zero DOM dependencies. Built for the AI era.
 
+![cover](assets/cover.png)
+
+
 </div>
