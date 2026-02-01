@@ -15,9 +15,7 @@ export default class BeautifulMermaidPlugin extends Plugin {
 
 		this.registerEvent(
 			this.app.workspace.on('css-change', () => {
-				for (const block of this.activedMermaidBlocks) {
-					block.forceRender()
-				}
+				this.forceUpdate()
 			}),
 		)
 
@@ -26,11 +24,12 @@ export default class BeautifulMermaidPlugin extends Plugin {
 			'beautiful-mermaid',
 			this.mermaidPostProcessor.bind(this),
 		)
+	}
 
-		// Living Mode
-		this.registerMarkdownPostProcessor((el, ctx) => {
-			console.log('Living Mode Post Processor', el, ctx)
-		})
+	forceUpdate() {
+		for (const block of this.activedMermaidBlocks) {
+			block.forceRender()
+		}
 	}
 
 	// Reading Mode Mermaid Processor
@@ -55,5 +54,6 @@ export default class BeautifulMermaidPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings)
+		this.forceUpdate()
 	}
 }
