@@ -18,7 +18,9 @@ export default class BeautifulMermaidPlugin extends Plugin {
 
 		this.registerEvent(
 			this.app.workspace.on('css-change', () => {
-				console.log('CSS changed, re-rendering Mermaid diagrams')
+				for (const block of this.activedMermaidBlocks) {
+					block.forceRender()
+				}
 			}),
 		)
 	}
