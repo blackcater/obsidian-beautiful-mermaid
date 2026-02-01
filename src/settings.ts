@@ -2,7 +2,11 @@ import { App, PluginSettingTab, Setting, TextComponent } from 'obsidian'
 import BeautifulMermaidPlugin from './main'
 
 export const PRESET_THEMES: Record<string, ThemeColors> = {
-	'zinc-light': {},
+	'default-light': {},
+	'default-dark': {
+		bg: 'transparent',
+		fg: '#FAFAFA',
+	},
 	'zinc-dark': {
 		bg: '#18181B',
 		fg: '#FAFAFA',
@@ -122,21 +126,20 @@ export interface BeautifulMermaidSettings {
 }
 
 export const DEFAULT_SETTINGS: BeautifulMermaidSettings = {
-	lightPreset: 'zinc-light',
+	lightPreset: 'default-light',
 	lightCustomColors: {},
 	lightIsCustom: false,
-	darkPreset: 'zinc-dark',
+	darkPreset: 'default-dark',
 	darkCustomColors: {},
 	darkIsCustom: false,
 }
 
 export const PRESET_THEME_OPTIONS = Object.keys(PRESET_THEMES).map((value) => {
-	const isLight = value.includes('light') || value === 'catppuccin-latte'
 	const label = value
 		.split('-')
 		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
 		.join(' ')
-	return { value, label: `${label} ${isLight ? '(Light)' : '(Dark)'}` }
+	return { value, label }
 })
 
 function createColorInput(
