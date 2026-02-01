@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "beautiful-mermaid",
+	"name": "Beautiful Mermaid",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Add beautiful mermaid diagrams to your Obsidian notes.",
+	"author": "Elon Tang",
+	"authorUrl": "https://github.com/blackcater",
+	"fundingUrl": "https://github.com/blackcater",
 	"isDesktopOnly": false
 }
