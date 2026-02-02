@@ -1,7 +1,7 @@
 import { BeautifulMermaidPlugin } from './BeautifulMermaidPlugin'
 import { ThemeColors, PRESET_THEMES as THEMES } from './BeautifulMermaidSettingTab'
 
-export class Utils {
+export class CommonUtils {
 	public static getThemeColors(plugin: BeautifulMermaidPlugin): ThemeColors {
 		const isDarkMode = plugin.app.isDarkMode()
 		const isCustom = isDarkMode ? plugin.settings.darkIsCustom : plugin.settings.lightIsCustom
