@@ -1,7 +1,7 @@
 {
 	"id": "beautiful-mermaid",
 	"name": "Beautiful Mermaid",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"minAppVersion": "0.15.0",
 	"description": "Add beautiful mermaid diagrams to your Obsidian notes.",
 	"author": "Elon Tang",
