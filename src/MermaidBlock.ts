@@ -1,7 +1,7 @@
 import { renderMermaid } from 'beautiful-mermaid'
-import BeautifulMermaidPlugin from 'main'
 import { MarkdownPostProcessorContext, MarkdownRenderChild } from 'obsidian'
-import { getThemeColors } from 'utils'
+import { BeautifulMermaidPlugin } from './BeautifulMermaidPlugin'
+import { Utils } from './Utils'
 
 export class MermaidBlock extends MarkdownRenderChild {
 	plugin: BeautifulMermaidPlugin
@@ -23,10 +23,20 @@ export class MermaidBlock extends MarkdownRenderChild {
 
 	private async render(): Promise<void> {
 		this.containerEl.empty()
+		this.containerEl.style.overflow = 'auto'
 
-		const svg = await renderMermaid(this.source, getThemeColors(this.plugin))
+		const svg = await renderMermaid(this.source, Utils.getThemeColors(this.plugin))
 
-		this.containerEl.innerHTML = svg
+		// Generate unique IDs for markers to avoid conflicts with Obsidian's sanitization
+		const uniqueId = `mermaid-${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+		const modifiedSvg = svg
+			.replace(/id="arrowhead"/g, `id="${uniqueId}-arrowhead"`)
+			.replace(/id="arrowhead-start"/g, `id="${uniqueId}-arrowhead-start"`)
+			.replace(/url\(#arrowhead\)/g, `url(#${uniqueId}-arrowhead)`)
+			.replace(/url\(#arrowhead-start\)/g, `url(#${uniqueId}-arrowhead-start)`)
+
+		this.containerEl.innerHTML = modifiedSvg
 	}
 
 	public async forceRender(): Promise<void> {

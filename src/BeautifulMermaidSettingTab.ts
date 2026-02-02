@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting, TextComponent } from 'obsidian'
-import BeautifulMermaidPlugin from './main'
+import { BeautifulMermaidPlugin } from './BeautifulMermaidPlugin'
 
 export const PRESET_THEMES: Record<string, ThemeColors> = {
 	'default-light': {},
@@ -142,94 +142,6 @@ export const PRESET_THEME_OPTIONS = Object.keys(PRESET_THEMES).map((value) => {
 	return { value, label }
 })
 
-function createColorInput(
-	container: HTMLElement,
-	label: string,
-	description: string,
-	value: string | undefined,
-	defaultValue: string | undefined,
-	onChange: (value: string | undefined) => void,
-): TextComponent {
-	const setting = new Setting(container).setName(label).setDesc(description)
-
-	const wrapper = setting.controlEl.createEl('div')
-	wrapper.style.display = 'flex'
-	wrapper.style.alignItems = 'center'
-	wrapper.style.gap = '8px'
-
-	const colorPreview = wrapper.createEl('span')
-	colorPreview.style.width = '24px'
-	colorPreview.style.height = '24px'
-	colorPreview.style.borderRadius = '50%'
-	colorPreview.style.border = '2px solid var(--text-muted)'
-	colorPreview.style.flexShrink = '0'
-
-	// 空值时使用默认值
-	const actualValue = value || defaultValue
-	colorPreview.style.backgroundColor = actualValue || 'transparent'
-
-	const text = new TextComponent(wrapper)
-	text.setPlaceholder(defaultValue || '')
-	text.setValue(value ?? '')
-	text.onChange(onChange)
-	text.inputEl.style.width = '100px'
-
-	const updatePreview = (color: string | undefined) => {
-		const actual = color || defaultValue
-		colorPreview.style.backgroundColor = actual || 'transparent'
-	}
-
-	text.onChange((value) => {
-		const trimmed = value.trim()
-		updatePreview(trimmed || undefined)
-		onChange(trimmed || undefined)
-	})
-
-	return text
-}
-
-function createThemeColorsSection(
-	containerEl: HTMLElement,
-	themeColors: ThemeColors,
-	defaultColors: ThemeColors,
-	onChange: (colors: ThemeColors) => void,
-	onReset: (colors: ThemeColors) => void,
-): void {
-	const section = containerEl.createEl('div', {
-		cls: 'theme-colors-section',
-	})
-
-	const colors: { key: keyof ThemeColors; label: string; desc: string }[] = [
-		{ key: 'bg', label: 'Background', desc: 'Diagram background color' },
-		{ key: 'fg', label: 'Foreground', desc: 'Primary text and node content color' },
-		{ key: 'line', label: 'Line', desc: 'Connection lines and edges color' },
-		{ key: 'accent', label: 'Accent', desc: 'Arrow heads, highlights and emphasis' },
-		{ key: 'muted', label: 'Muted', desc: 'Secondary text, labels and details' },
-		{ key: 'surface', label: 'Surface', desc: 'Node fill color and backgrounds' },
-		{ key: 'border', label: 'Border', desc: 'Node stroke and border color' },
-	]
-
-	colors.forEach(({ key, label, desc }) => {
-		const value = themeColors[key]
-		const defaultValue = defaultColors[key]
-		createColorInput(section, label, desc, value, defaultValue, (newValue) => {
-			themeColors = themeColors || { ...defaultColors }
-			themeColors[key] = newValue || defaultValue
-			onChange(themeColors)
-		})
-	})
-
-	// Reset button
-	new Setting(section)
-		.setName('')
-		.setDesc('Clear all custom colors and use preset defaults')
-		.addButton((btn) =>
-			btn.setButtonText('Reset to Default').onClick(async () => {
-				onReset({ ...defaultColors })
-			}),
-		)
-}
-
 export class BeautifulMermaidSettingTab extends PluginSettingTab {
 	plugin: BeautifulMermaidPlugin
 
@@ -276,7 +188,7 @@ export class BeautifulMermaidSettingTab extends PluginSettingTab {
 			)
 
 		if (this.plugin.settings.lightIsCustom) {
-			createThemeColorsSection(
+			this.createThemeColorsSection(
 				containerEl,
 				this.plugin.settings.lightCustomColors,
 				{ ...PRESET_THEMES[this.plugin.settings.lightPreset]! },
@@ -326,7 +238,7 @@ export class BeautifulMermaidSettingTab extends PluginSettingTab {
 			)
 
 		if (this.plugin.settings.darkIsCustom) {
-			createThemeColorsSection(
+			this.createThemeColorsSection(
 				containerEl,
 				this.plugin.settings.darkCustomColors,
 				{ ...PRESET_THEMES[this.plugin.settings.darkPreset]! },
@@ -341,5 +253,93 @@ export class BeautifulMermaidSettingTab extends PluginSettingTab {
 				},
 			)
 		}
+	}
+
+	private createThemeColorsSection(
+		containerEl: HTMLElement,
+		themeColors: ThemeColors,
+		defaultColors: ThemeColors,
+		onChange: (colors: ThemeColors) => void,
+		onReset: (colors: ThemeColors) => void,
+	): void {
+		const section = containerEl.createEl('div', {
+			cls: 'theme-colors-section',
+		})
+
+		const colors: { key: keyof ThemeColors; label: string; desc: string }[] = [
+			{ key: 'bg', label: 'Background', desc: 'Diagram background color' },
+			{ key: 'fg', label: 'Foreground', desc: 'Primary text and node content color' },
+			{ key: 'line', label: 'Line', desc: 'Connection lines and edges color' },
+			{ key: 'accent', label: 'Accent', desc: 'Arrow heads, highlights and emphasis' },
+			{ key: 'muted', label: 'Muted', desc: 'Secondary text, labels and details' },
+			{ key: 'surface', label: 'Surface', desc: 'Node fill color and backgrounds' },
+			{ key: 'border', label: 'Border', desc: 'Node stroke and border color' },
+		]
+
+		colors.forEach(({ key, label, desc }) => {
+			const value = themeColors[key]
+			const defaultValue = defaultColors[key]
+			this.createColorInput(section, label, desc, value, defaultValue, (newValue) => {
+				themeColors = themeColors || { ...defaultColors }
+				themeColors[key] = newValue || defaultValue
+				onChange(themeColors)
+			})
+		})
+
+		// Reset button
+		new Setting(section)
+			.setName('')
+			.setDesc('Clear all custom colors and use preset defaults')
+			.addButton((btn) =>
+				btn.setButtonText('Reset to Default').onClick(async () => {
+					onReset({ ...defaultColors })
+				}),
+			)
+	}
+
+	private createColorInput(
+		container: HTMLElement,
+		label: string,
+		description: string,
+		value: string | undefined,
+		defaultValue: string | undefined,
+		onChange: (value: string | undefined) => void,
+	): TextComponent {
+		const setting = new Setting(container).setName(label).setDesc(description)
+
+		const wrapper = setting.controlEl.createEl('div')
+		wrapper.style.display = 'flex'
+		wrapper.style.alignItems = 'center'
+		wrapper.style.gap = '8px'
+
+		const colorPreview = wrapper.createEl('span')
+		colorPreview.style.width = '24px'
+		colorPreview.style.height = '24px'
+		colorPreview.style.borderRadius = '50%'
+		colorPreview.style.border = '2px solid var(--text-muted)'
+		colorPreview.style.flexShrink = '0'
+
+		// 空值时使用默认值
+		const actualValue = value || defaultValue
+		colorPreview.style.backgroundColor = actualValue || 'transparent'
+
+		const text = new TextComponent(wrapper)
+		text.setPlaceholder(defaultValue || '')
+		text.setValue(value ?? '')
+		text.onChange(onChange)
+		text.inputEl.style.width = '100px'
+
+		const updatePreview = (color: string | undefined) => {
+			const actual = color || defaultValue
+			colorPreview.style.backgroundColor = actual || 'transparent'
+		}
+
+		text.onChange((value) => {
+			const trimmed = value.trim()
+			updatePreview(trimmed || undefined)
+			onChange(trimmed || undefined)
+		})
+
+		return text
 	}
 }
