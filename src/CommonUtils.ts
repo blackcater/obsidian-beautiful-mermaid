@@ -1,5 +1,5 @@
 import { BeautifulMermaidPlugin } from './BeautifulMermaidPlugin'
-import { ThemeColors, PRESET_THEMES as THEMES } from './BeautifulMermaidSettingTab'
+import { RenderOptions, ThemeColors, PRESET_THEMES as THEMES } from './BeautifulMermaidSettingTab'
 
 export class CommonUtils {
 	public static getThemeColors(plugin: BeautifulMermaidPlugin): ThemeColors {
@@ -13,5 +13,9 @@ export class CommonUtils {
 				? plugin.settings.lightCustomColors
 				: THEMES[plugin.settings.lightPreset]!
 		}
+	}
+
+	public static getRenderOptions(plugin: BeautifulMermaidPlugin): RenderOptions {
+		return plugin.settings.renderOptions
 	}
 }

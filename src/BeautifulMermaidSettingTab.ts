@@ -4,7 +4,7 @@ import { BeautifulMermaidPlugin } from './BeautifulMermaidPlugin'
 export const PRESET_THEMES: Record<string, ThemeColors> = {
 	'default-light': {},
 	'default-dark': {
-		bg: 'transparent',
+		bg: '#181818',
 		fg: '#FAFAFA',
 	},
 	'zinc-dark': {
@@ -107,13 +107,37 @@ export const PRESET_THEMES: Record<string, ThemeColors> = {
 export type ThemeName = keyof typeof PRESET_THEMES
 
 export interface ThemeColors {
+	/** Background color → CSS variable --bg. */
 	bg?: string
+	/** Foreground / primary text color → CSS variable --fg. */
 	fg?: string
+	/** Edge/connector color → CSS variable --line */
 	line?: string
+	/** Arrow heads, highlights → CSS variable --accent */
 	accent?: string
+	/** Secondary text, edge labels → CSS variable --muted */
 	muted?: string
+	/** Node/box fill tint → CSS variable --surface */
 	surface?: string
+	/** Node/group stroke color → CSS variable --border */
 	border?: string
+}
+
+export interface RenderOptions {
+	/** Font family for all text. Default: 'Inter' */
+	font?: string
+	/** Canvas padding in px. Default: 40 */
+	padding?: number
+	/** Horizontal spacing between sibling nodes. Default: 24 */
+	nodeSpacing?: number
+	/** Vertical spacing between layers. Default: 40 */
+	layerSpacing?: number
+	/** Spacing between disconnected components. Default: nodeSpacing (24) */
+	componentSpacing?: number
+	/** Render with transparent background (no background style on SVG). Default: false */
+	transparent?: boolean
+	/** Enable hover tooltips on chart data points (xychart only). Default: false */
+	interactive?: boolean
 }
 
 export interface BeautifulMermaidSettings {
@@ -123,6 +147,7 @@ export interface BeautifulMermaidSettings {
 	darkPreset: ThemeName
 	darkCustomColors: ThemeColors
 	darkIsCustom: boolean
+	renderOptions: RenderOptions
 }
 
 export const DEFAULT_SETTINGS: BeautifulMermaidSettings = {
@@ -132,6 +157,15 @@ export const DEFAULT_SETTINGS: BeautifulMermaidSettings = {
 	darkPreset: 'default-dark',
 	darkCustomColors: {},
 	darkIsCustom: false,
+	renderOptions: {
+		font: 'Inter',
+		padding: 40,
+		nodeSpacing: 24,
+		layerSpacing: 40,
+		componentSpacing: 24,
+		transparent: true,
+		interactive: false,
+	},
 }
 
 export const PRESET_THEME_OPTIONS = Object.keys(PRESET_THEMES).map((value) => {
@@ -253,6 +287,99 @@ export class BeautifulMermaidSettingTab extends PluginSettingTab {
 				},
 			)
 		}
+
+		containerEl.createEl('hr')
+
+		// Render Options
+		containerEl.createEl('h2', { text: 'Render Options' })
+		containerEl.createEl('p', {
+			text: 'Configure rendering settings for mermaid diagrams.',
+			cls: 'setting-item-description',
+		})
+
+		const renderOptions = this.plugin.settings.renderOptions
+
+		new Setting(containerEl)
+			.setName('Font Family')
+			.setDesc('Font family for all text')
+			.addText((text) =>
+				text.setValue(renderOptions.font ?? 'Inter').onChange(async (value) => {
+					this.plugin.settings.renderOptions.font = value || 'Inter'
+					await this.plugin.saveSettings()
+				}),
+			)
+
+		new Setting(containerEl)
+			.setName('Padding')
+			.setDesc('Canvas padding in px')
+			.addText((text) =>
+				text.setValue(String(renderOptions.padding)).onChange(async (value) => {
+					const num = Number.parseInt(value, 10)
+					if (!Number.isNaN(num)) {
+						this.plugin.settings.renderOptions.padding = num
+						await this.plugin.saveSettings()
+					}
+				}),
+			)
+
+		new Setting(containerEl)
+			.setName('Node Spacing')
+			.setDesc('Horizontal spacing between sibling nodes')
+			.addText((text) =>
+				text.setValue(String(renderOptions.nodeSpacing)).onChange(async (value) => {
+					const num = Number.parseInt(value, 10)
+					if (!Number.isNaN(num)) {
+						this.plugin.settings.renderOptions.nodeSpacing = num
+						await this.plugin.saveSettings()
+					}
+				}),
+			)
+
+		new Setting(containerEl)
+			.setName('Layer Spacing')
+			.setDesc('Vertical spacing between layers')
+			.addText((text) =>
+				text.setValue(String(renderOptions.layerSpacing)).onChange(async (value) => {
+					const num = Number.parseInt(value, 10)
+					if (!Number.isNaN(num)) {
+						this.plugin.settings.renderOptions.layerSpacing = num
+						await this.plugin.saveSettings()
+					}
+				}),
+			)
+
+		new Setting(containerEl)
+			.setName('Component Spacing')
+			.setDesc('Spacing between disconnected components')
+			.addText((text) =>
+				text.setValue(String(renderOptions.componentSpacing)).onChange(async (value) => {
+					const num = Number.parseInt(value, 10)
+					if (!Number.isNaN(num)) {
+						this.plugin.settings.renderOptions.componentSpacing = num
+						await this.plugin.saveSettings()
+					}
+				}),
+			)
+
+		new Setting(containerEl)
+			.setName('Transparent Background')
+			.setDesc('Render with transparent background')
+			.addToggle((toggle) =>
+				toggle.setValue(renderOptions.transparent ?? false).onChange(async (value) => {
+					this.plugin.settings.renderOptions.transparent = value
+					await this.plugin.saveSettings()
+				}),
+			)
+
+		new Setting(containerEl)
+			.setName('Interactive')
+			.setDesc('Enable hover tooltips on chart data points (xychart only)')
+			.addToggle((toggle) =>
+				toggle.setValue(renderOptions.interactive ?? false).onChange(async (value) => {
+					this.plugin.settings.renderOptions.interactive = value
+					await this.plugin.saveSettings()
+				}),
+			)
 	}
 
 	private createThemeColorsSection(

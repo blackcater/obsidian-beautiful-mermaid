@@ -25,10 +25,11 @@ export class MermaidBlock extends MarkdownRenderChild {
 		this.containerEl.empty()
 		this.containerEl.style.overflow = 'auto'
 
-		const svg = await renderMermaidSVGAsync(
-			this.source,
-			CommonUtils.getThemeColors(this.plugin),
-		)
+		const themeColors = CommonUtils.getThemeColors(this.plugin)
+		const renderOptions = CommonUtils.getRenderOptions(this.plugin)
+		const mergedOptions = { ...themeColors, ...renderOptions }
+
+		const svg = await renderMermaidSVGAsync(this.source, mergedOptions)
 
 		// Generate unique IDs for markers to avoid conflicts with Obsidian's sanitization
 		const uniqueId = `mermaid-${Date.now()}-${Math.random().toString(36).slice(2)}`
