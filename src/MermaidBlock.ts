@@ -1,4 +1,4 @@
-import { renderMermaid } from 'beautiful-mermaid'
+import { renderMermaidSVGAsync } from 'beautiful-mermaid'
 import { MarkdownPostProcessorContext, MarkdownRenderChild } from 'obsidian'
 import { BeautifulMermaidPlugin } from './BeautifulMermaidPlugin'
 import { CommonUtils } from './CommonUtils'
@@ -25,7 +25,10 @@ export class MermaidBlock extends MarkdownRenderChild {
 		this.containerEl.empty()
 		this.containerEl.style.overflow = 'auto'
 
-		const svg = await renderMermaid(this.source, CommonUtils.getThemeColors(this.plugin))
+		const svg = await renderMermaidSVGAsync(
+			this.source,
+			CommonUtils.getThemeColors(this.plugin),
+		)
 
 		// Generate unique IDs for markers to avoid conflicts with Obsidian's sanitization
 		const uniqueId = `mermaid-${Date.now()}-${Math.random().toString(36).slice(2)}`
